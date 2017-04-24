@@ -1,3 +1,5 @@
+#include <pthread.h>
+
 #include "common.h"
 #include "client-queue.h"
 
@@ -10,6 +12,17 @@ void addClientToQueue(clientNode_t **head, int clientSocket)
     newNode->clientSocket = clientSocket;
     newNode->next = *head;
     *head = newNode;
+}
+
+void safeAddClientToQueue(clientNode_t **head, int clientSocket, pthread_mutex_t *mutex)
+{
+    if (pthread_mutex_lock(mutex) != 0)
+        ERR("pthread_mutex_lock");
+
+    addClientToQueue(head, clientSocket);
+
+    if (pthread_mutex_unlock(mutex) != 0)
+        ERR("pthread_mutex_unlock");
 }
 
 clientNode_t *popClientFromQueue(clientNode_t **head)
@@ -34,6 +47,19 @@ clientNode_t *popClientFromQueue(clientNode_t **head)
 
     prev->next = NULL;
     return tail;
+}
+
+clientNode_t *safePopClientFromQueue(clientNode_t **head, pthread_mutex_t *mutex)
+{
+    if (pthread_mutex_lock(mutex) != 0)
+        ERR("pthread_mutex_lock");
+
+    clientNode_t *client = popClientFromQueue(head);
+
+    if (pthread_mutex_unlock(mutex) != 0)
+        ERR("pthread_mutex_unlock");
+
+    return client;
 }
 
 void clearClientQueue(clientNode_t **head)

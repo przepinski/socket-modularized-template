@@ -7,7 +7,9 @@ typedef struct clientNode {
 } clientNode_t;
 
 void addClientToQueue(clientNode_t **head, int clientSocket);
+void safeAddClientToQueue(clientNode_t **head, int clientSocket, pthread_mutex_t *mutex);
 clientNode_t *popClientFromQueue(clientNode_t **head);
+clientNode_t *safePopClientFromQueue(clientNode_t **head, pthread_mutex_t *mutex);
 void clearClientQueue(clientNode_t **head);
 
 #endif
