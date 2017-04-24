@@ -42,6 +42,17 @@ void removeWorkerThreadFromList(workerThreadNode_t **head, pthread_t tid)
     }
 }
 
+void safeRemoveWorkerThreadFromList(workerThreadNode_t **head, pthread_t tid, pthread_mutex_t *mutex)
+{
+    if (pthread_mutex_lock(mutex) != 0)
+        ERR("pthread_mutex_lock");
+
+    removeWorkerThreadFromList(head, tid);
+
+    if (pthread_mutex_unlock(mutex) != 0)
+        ERR("pthread_mutex_unlock");
+}
+
 void clearWorkerThreadList(workerThreadNode_t **head)
 {
     while (*head != NULL)
