@@ -49,3 +49,41 @@ sigset_t prepareBlockMask()
     sigaddset(&blockMask, SIGPIPE);
     return blockMask;
 }
+
+size_t bulkRead(int fd, char *buf, size_t length)
+{
+    size_t totalBytes = 0;
+    while (length > 0)
+    {
+        ssize_t bytesRead = TEMP_FAILURE_RETRY(read(fd, buf, length));
+        if (bytesRead < 0)
+            return bytesRead;
+        if (bytesRead == 0)
+            return totalBytes;
+
+        buf += bytesRead;
+        totalBytes += bytesRead;
+        length -= bytesRead;
+    }
+
+    return totalBytes;
+}
+
+size_t bulkWrite(int fd, char *buf, size_t length)
+{
+    size_t totalBytes = 0;
+    while (length > 0)
+    {
+        ssize_t bytesWritten = TEMP_FAILURE_RETRY(write(fd, buf, length));
+        if (bytesWritten < 0)
+            return bytesWritten;
+        if (bytesWritten == 0)
+            return bytesWritten;
+
+        buf += bytesWritten;
+        totalBytes += bytesWritten;
+        length -= bytesWritten;
+    }
+
+    return totalBytes;
+}
