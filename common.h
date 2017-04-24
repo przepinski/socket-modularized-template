@@ -1,9 +1,13 @@
 #ifndef COMMON_H_INCLUDED
 #define COMMON_H_INCLUDED
 
+#define _GNU_SOURCE
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
+#include <errno.h>
+#include <unistd.h>
 
 #define ERR(source) (fprintf(stderr, "%s:%d\n", __FILE__, __LINE__), \
                     perror(source), exit(EXIT_FAILURE) )

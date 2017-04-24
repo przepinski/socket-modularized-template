@@ -1,7 +1,5 @@
-#define _GNU_SOURCE
-#include <unistd.h>
+#include "common.h"
 #include <string.h>
-#include <errno.h>
 
 #include "worker-list.h"
 #include "client-queue.h"

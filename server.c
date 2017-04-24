@@ -1,13 +1,8 @@
 #define _GNU_SOURCE
-#include <stdlib.h>
-#include <stdio.h>
 #include <pthread.h>
 #include <string.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
-#include <unistd.h>
-#include <errno.h>
-#include <signal.h>
 #include <sys/select.h>
 #include <semaphore.h>
 
@@ -19,11 +14,37 @@
 
 #define BACKLOG 10
 
+void acceptNewClient(struct serverData *serverData, int threadId)
+{
+    int clientSocket = TEMP_FAILURE_RETRY(accept(serverData->serverSocket, NULL, NULL));
+    if (clientSocket < 0)
+        ERR("accept");
 
+    if (pthread_mutex_lock(serverData->clientQueueMutex) != 0)
+        ERR("pthread_mutex_lock");
+
+    addClientToQueue(serverData->clientQueue, clientSocket);
+
+    pthread_t tid;
+    workerThreadArgs_t *workerArgs = malloc(sizeof(workerThreadArgs_t));
+    if (workerArgs == NULL)
+        ERR("malloc");
+    workerArgs->id = threadId;
+    workerArgs->clientQueue = serverData->clientQueue;
+    workerArgs->clientQueueMutex = serverData->clientQueueMutex;
+    workerArgs->workerThreadsList = serverData->workerThreadsList;
+    workerArgs->workerThreadsListMutex = serverData->workerThreadsListMutex;
+    if (pthread_create(&tid, NULL, workerThread, (void*)workerArgs) != 0)
+        ERR("pthread_create");
+
+    if (pthread_mutex_unlock(serverData->clientQueueMutex) != 0)
+        ERR("pthread_mutex_unlock");
+}
 
 void serverLoop(struct serverData *serverData)
 {
-    // Main loop
+    int nextThreadId = 1;
+
     fd_set readFds;
     while (!shouldQuit)
     {
@@ -36,18 +57,7 @@ void serverLoop(struct serverData *serverData)
             ERR("pselect");
         }
 
-        int clientSocket = TEMP_FAILURE_RETRY(accept(serverData->serverSocket, NULL, NULL));
-        if (clientSocket < 0)
-            ERR("accept");
-
-        if (pthread_mutex_lock(serverData->clientQueueMutex) != 0)
-            ERR("pthread_mutex_lock");
-
-        addClientToQueue(serverData->clientQueue, clientSocket);
-
-        if (pthread_mutex_unlock(serverData->clientQueueMutex) != 0)
-            ERR("pthread_mutex_unlock");
-
+        acceptNewClient(serverData, nextThreadId++);
         printf("[SERVER] client connected\n");
     }
 }
