@@ -26,6 +26,10 @@ void bindSocket(int serverSocket, int16_t port)
     serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     serverAddr.sin_port = htons(port);
 
+    int t = 1;
+    if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &t, sizeof(int)) < 0)
+        ERR("setsockopt");
+
     if (bind(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0)
         ERR("bind");
 }
