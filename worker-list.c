@@ -1,16 +1,13 @@
-#include <stdlib.h>
-#include <string.h>
-
-#include "common.h"
 #include "worker-list.h"
 
-void addWorkerThreadToList(workerThreadNode_t **head, pthread_t tid)
+void addWorkerThreadToList(workerThreadNode_t **head, pthread_t tid, int id)
 {
     workerThreadNode_t *newNode = malloc(sizeof(workerThreadNode_t));
     if (newNode == NULL)
         ERR("malloc");
 
     newNode->tid = tid;
+    newNode->id = id;
     newNode->next = *head;
     *head = newNode;
 }

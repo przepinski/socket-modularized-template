@@ -1,8 +1,3 @@
-#include "common.h"
-#include <string.h>
-
-#include "worker-list.h"
-#include "client-queue.h"
 #include "server-helpers.h"
 
 volatile sig_atomic_t shouldQuit = 0;

@@ -1,12 +1,8 @@
-#define _GNU_SOURCE
-#include <pthread.h>
-#include <string.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
+#include "common.h"
+
 #include <sys/select.h>
 #include <semaphore.h>
 
-#include "common.h"
 #include "worker-list.h"
 #include "client-queue.h"
 #include "worker-thread.h"
@@ -32,14 +28,11 @@ void acceptNewClient(struct serverData *serverData, int threadId)
     if (workerArgs == NULL)
         ERR("malloc");
     workerArgs->id = threadId;
-    workerArgs->clientQueue = serverData->clientQueue;
-    workerArgs->clientQueueMutex = serverData->clientQueueMutex;
-    workerArgs->workerThreadsList = serverData->workerThreadsList;
-    workerArgs->workerThreadsListMutex = serverData->workerThreadsListMutex;
+    workerArgs->serverData = serverData;
     if (pthread_create(&tid, NULL, workerThread, (void*)workerArgs) != 0)
         ERR("pthread_create");
 
-    addWorkerThreadToList(serverData->workerThreadsList, tid);
+    addWorkerThreadToList(serverData->workerThreadsList, tid, threadId);
 
     if (pthread_mutex_unlock(serverData->clientQueueMutex) != 0)
         ERR("pthread_mutex_unlock");

@@ -1,6 +1,5 @@
 #include "common.h"
 #include "worker-thread.h"
-#include "server-helpers.h"
 
 void setWorkerThreadSignalHandling(sigset_t *previousMask)
 {
@@ -12,7 +11,7 @@ void setWorkerThreadSignalHandling(sigset_t *previousMask)
 void workerThreadCleanup(workerThreadArgs_t *workerArgs, sigset_t *previousMask)
 {
     if (!shouldQuit)
-        safeRemoveWorkerThreadFromList(workerArgs->workerThreadsList, pthread_self(), workerArgs->workerThreadsListMutex);
+        safeRemoveWorkerThreadFromList(workerArgs->serverData->workerThreadsList, pthread_self(), workerArgs->serverData->workerThreadsListMutex);
 
 
     free(workerArgs);
@@ -27,7 +26,7 @@ void *workerThread(void *args)
     setWorkerThreadSignalHandling(&previousMask);
     printf("[%d] started\n", workerArgs->id);
 
-    clientNode_t *client = safePopClientFromQueue(workerArgs->clientQueue, workerArgs->clientQueueMutex);
+    clientNode_t *client = safePopClientFromQueue(workerArgs->serverData->clientQueue, workerArgs->serverData->clientQueueMutex);
 
     printf("[%d] closing connection to the client\n", workerArgs->id);
     if (TEMP_FAILURE_RETRY(close(client->clientSocket)) < 0)

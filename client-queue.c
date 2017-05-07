@@ -1,6 +1,3 @@
-#include <pthread.h>
-
-#include "common.h"
 #include "client-queue.h"
 
 void addClientToQueue(clientNode_t **head, int clientSocket, struct sockaddr_in *clientAddr, socklen_t *clientAddrLen)

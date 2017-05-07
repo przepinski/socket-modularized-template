@@ -1,8 +1,7 @@
 #ifndef CLIENT_QUEUE_H_INCLUDED
 #define CLIENT_QUEUE_H_INCLUDED
 
-#include <netinet/in.h>
-#include <netinet/tcp.h>
+#include "common.h"
 
 typedef struct clientNode {
     int clientSocket;

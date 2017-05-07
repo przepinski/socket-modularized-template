@@ -8,6 +8,15 @@
 #include <signal.h>
 #include <errno.h>
 #include <unistd.h>
+#include <string.h>
+
+
+#include <pthread.h>
+#include <netinet/tcp.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+
+
 
 #define ERR(source) (fprintf(stderr, "%s:%d\n", __FILE__, __LINE__), \
                     perror(source), exit(EXIT_FAILURE) )

@@ -1,8 +1,6 @@
 #ifndef SERVER_HELPERS_H_INCLUDED
 #define SERVER_HELPERS_H_INCLUDED
 
-#include <signal.h>
-
 #include "common.h"
 #include "worker-list.h"
 #include "client-queue.h"

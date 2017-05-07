@@ -1,8 +1,3 @@
-#define _GNU_SOURCE
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <string.h>
-
 #include "common.h"
 
 void setHandler(int signal, void (*handler)(int))
